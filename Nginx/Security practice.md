@@ -33,11 +33,11 @@ server {
   listen [::]:443 ssl http2;
   server_name .*.com;
 
-#证书路径
+  #证书路径
   ssl_certificate /etc/nginx/ssl/epay_com.crt;
   ssl_certificate_key /etc/nginx/ssl/epay_com.key;
 
-  # enable session resumption to improve https performance
+  # 启用会话恢复以提高 https 性能
   ssl_session_cache shared:SSL:50m;
   ssl_session_timeout 1d;
   ssl_session_tickets off;
