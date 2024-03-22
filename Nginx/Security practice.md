@@ -1,10 +1,10 @@
-# 不在错误页面和服务器header中发送nginx版本号
+#不在错误页面和服务器header中发送nginx版本号
 server_tokens off;
 
 #Content-Security-Policy 标头是 X-XSS-Protection 标头的改进版本，并提供额外的安全层。它是非常强大的标头，旨在防止 XSS 和数据注入攻击。CSP 指示浏览器加载允许在网站上加载的内容。目前所有主流浏览器都提供对内容安全策略的全部或部分支持。
 add_header Content-Security-Policy "default-src 'self'; font-src *;img-src * data:; script-src *; style-src *" ;
 
-# X-Frame-Options 标头用于通过禁用网站上的 iframe 来保护您的网站免受点击劫持攻击。目前所有主流网络浏览器都支持它。通过此标头，您可以告诉浏览器不要将您的网页嵌入到frame/iframe 中。
+#X-Frame-Options 标头用于通过禁用网站上的 iframe 来保护您的网站免受点击劫持攻击。目前所有主流网络浏览器都支持它。通过此标头，您可以告诉浏览器不要将您的网页嵌入到frame/iframe 中。
 add_header X-Frame-Options "SAMEORIGIN";
 
 #X-XSS也称为跨站脚本标头，用于防御跨站脚本攻击。XSS 过滤器在现代 Web 浏览器（例如 Chrome、IE 和 Safari）中默认启用。当页面检测到反射的跨站脚本 (XSS) 攻击时，此标头会阻止页面加载。
@@ -16,11 +16,10 @@ add_Header always set Referrer-Policy "strict-origin"
 #Permissions-Policy 是一个新标头，允许站点控制浏览器中可以使用哪些 API 或功能。
 add_header Permissions-Policy "geolocation=(),midi=(),sync-xhr=(),microphone=(),camera=(),magnetometer=(),gyroscope=(),fullscreen=(self),payment=()";
 
-#启用 Content Security Policy (CSP) (和支持它的浏览器(http://caniuse.com/#feat=contentsecuritypolicy)后,
-# 可以告诉浏览器它仅能从你明确允许的域名下载内容,修改应用代码, 通过禁用css和js的 'unsafe-inline' 'unsafe-eval' 指标提高安全性。
+#可以告诉浏览器它仅能从你明确允许的域名下载内容,修改应用代码, 通过禁用css和js的 'unsafe-inline' 'unsafe-eval' 指标提高安全性。
 add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://ssl.google-analytics.com https://assets.zendesk.com https://connect.facebook.net; img-src 'self' https://ssl.google-analytics.com https://s-static.ak.facebook.com https://assets.zendesk.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://assets.zendesk.com; font-src 'self' https://themes.googleusercontent.com; frame-src https://assets.zendesk.com https://www.facebook.com https://s-static.ak.facebook.com https://tautt.zendesk.com; object-src 'none'";
 
-# redirect all http traffic to https
+#将所有 http 流量重定向到 https
 server {
   listen 80 default_server;
   listen [::]:80 default_server;
@@ -28,54 +27,50 @@ server {
   return 301 https://$host$request_uri;
 }
 
+#证书路径
 server {
   listen 443 ssl http2;
   listen [::]:443 ssl http2;
   server_name .*.com;
-
-  #证书路径
   ssl_certificate /etc/nginx/ssl/epay_com.crt;
   ssl_certificate_key /etc/nginx/ssl/epay_com.key;
 
-  # 启用会话恢复以提高 https 性能
-  ssl_session_cache shared:SSL:50m;
-  ssl_session_timeout 1d;
-  ssl_session_tickets off;
+#启用会话恢复以提高 https 性能
+ssl_session_cache shared:SSL:50m;
+ssl_session_timeout 1d;
+ssl_session_tickets off;
 
-  # 启用 session resumption 提高HTTPS性能
-  ssl_session_cache shared:SSL:50m;
-  ssl_session_timeout 1d;
-  ssl_session_tickets off;
+#启用 session resumption 提高HTTPS性能
+ssl_session_cache shared:SSL:50m;
+ssl_session_timeout 1d;
+ssl_session_tickets off;
 
-  # DHE密码器的Diffie-Hellman参数, 推荐 4096 位
-  openssl dhparam -dsaparam -out /etc/nginx/ssl/dhparam.pem 4096
-  ssl_dhparam /etc/nginx/ssl/dhparam.pem;
+  #DHE密码器的Diffie-Hellman参数, 推荐 4096 位
+openssl dhparam -dsaparam -out /etc/nginx/ssl/dhparam.pem 4096
+ssl_dhparam /etc/nginx/ssl/dhparam.pem;
 
-  # 启用服务器端保护, 防止 BEAST 攻击
-  ssl_prefer_server_ciphers on;
- 
-  ssl_prefer_server_ciphers on;
-  # 禁用 SSLv3 和不安全的算法TLS 1.0、1.1.
+  #启用服务器端保护, 防止 BEAST 攻击
+ssl_prefer_server_ciphers on;
+
+  #禁用 SSLv3 和不安全的算法TLS 1.0、1.1
 ssl_protocols TLSv1.2 TLSv1.3;
 
-  # 选择强度和安全加密算法
+  #选择强度和安全加密算法
 ssl_ciphers 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305';
 
- # 启用 session resumption 提高HTTPS性能
-  ssl_session_cache shared:SSL:50m;
-  ssl_session_timeout 1d;
-  ssl_session_tickets off;
-  ssl_prefer_server_ciphers off;
+ #启用 session resumption 提高HTTPS性能
+ssl_session_cache shared:SSL:50m;
+ssl_session_timeout 1d;
+ssl_session_tickets off;
+ssl_prefer_server_ciphers off;
 
+  #启用 ocsp stapling (网站可以以隐私保护、可扩展的方式向访客传达证书吊销信息的机制)
+resolver 8.8.8.8 8.8.4.4;
+ssl_stapling on;
+ssl_stapling_verify on;
+ssl_trusted_certificate /etc/nginx/ssl/star_forgott_com.crt;
 
-  # 启用 ocsp stapling (网站可以以隐私保护、可扩展的方式向访客传达证书吊销信息的机制)
-  resolver 8.8.8.8 8.8.4.4;
-  ssl_stapling on;
-  ssl_stapling_verify on;
-  ssl_trusted_certificate /etc/nginx/ssl/star_forgott_com.crt;
-
-
-  # 启用 HSTS(HTTP Strict Transport Security) 
+  #启用 HSTS(HTTP Strict Transport Security) 
 add_header Strict-Transport-Security "max-age=31536000; includeSubdomains; preload";
 
 
@@ -106,13 +101,12 @@ if ($http_user_agent ~* LWP::Simple|BBBike|wget|curl) {
 }
 
 #阻止推荐垃圾邮件
-## Deny certain Referers ###
+##Deny certain Referers ###
      if ( $http_referer ~* (babes|forsale|girl|jewelry|love|nudit|organic|poker|porn|sex|teen) )
      {
          # return 404;
          return 403;
      }
-##
 
 #图片防盗链
 location /images/ {
@@ -214,7 +208,6 @@ public class CORSFilter implements Filter {
 }
 
 #密码保护目录
-首先创建密码文件并添加一个名为 vivek 的用户： 编辑 nginx.conf 并保护所需的目录，如下所示：
-
+首先创建密码文件并添加一个名为 vivk 的用户： 编辑 nginx.conf 并保护所需的目录，如下所示：
 mkdir /usr/local/nginx/conf/.htpasswd/
-htpasswd -c /usr/local/nginx/conf/.htpasswd/passwd vivek
+htpasswd -c /usr/local/nginx/conf/.htpasswd/passwd vivk
