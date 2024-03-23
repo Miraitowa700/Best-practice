@@ -1,2 +1,2 @@
 # Best-practice
-Regular hosting, databases, web containers, Kubernetes, code hardening, cloud platform practices
+Regular host, databases, web containers, Kubernetes, code hardening, cloud platform practices
